@@ -1,0 +1,10 @@
+
+[
+    {
+        avatar: 'avtBanner/dienthoai1.jpg';
+        name:'Iphone 13 pro MAX';
+        producttype: 'Iphone';
+        price:'15000000';
+    }
+]
+=>Lọc các loại sản phẩm có cùng tên ra
