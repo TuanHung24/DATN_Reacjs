@@ -7,7 +7,7 @@ module.exports = function(app) {
       target: 'https://provinces.open-api.vn',
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '', // loại bỏ /api khi chuyển tiếp
+        '^/api': '',
       },
     })
   );

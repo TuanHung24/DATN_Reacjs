@@ -4,12 +4,13 @@
 
 .giohang {
   min-height: 500px;
-  margin: 15px 15% 15px 15%;
-  width: 70%;
+  margin: 15px 20% 15px 20%;
+  width: 60%;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.853);
 
 }
+
 
 
 .star {
@@ -57,6 +58,7 @@
   border: 1px solid rgb(167, 167, 167);
   margin-left: 23%;
   width: 54%;
+  font-size: 15px;
   margin-top: 20px;
   margin-bottom: 40px;
   padding: 20px 20px;
@@ -68,20 +70,15 @@
 }
 
 .order-total {
-  font-size: larger;
+  font-size: medium;
   color: red;
   font-weight: bold;
 }
 
 
 
-
-
-
-
-
 .btn.btn-primary.th-ng {
-  margin: 0% 0% 2% 41.5%;
+  margin: 0% 0% 2% 40%;
 }
 
 .btn.btn-danger.buy-now,
@@ -92,8 +89,31 @@
   margin-left: 10px;
 }
 
+.add-cart-now {
+  margin-left: 65%;
+  color: #0051ff;
+  text-decoration: none;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 16px;
+  padding: 10px;
+}
+
+.add-cart-now:before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-top: 1px solid #288ad6;
+  border-left: 1px solid #288ad6;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 3px 2px 0;
+  transform: rotate(-45deg);
+}
+
 .info-name.active,
-.info-name {
+#info-name {
+  margin-top: -2.5%;
   text-decoration: none;
   color: black;
 }
@@ -429,7 +449,13 @@ img {
 
 #body {
   min-height: 600px;
-  margin-left: 13%;
+  margin-left: 13.5%;
+}
+
+.strong-product-introduce {
+  line-height: 30px;
+  font-size: 25px;
+  font-weight: 500;
 }
 
 body {
@@ -570,7 +596,7 @@ body {
   align-items: center;
   display: flex;
   color: black;
-  width: 120%;
+  width: 100%;
 }
 
 .p-3.text-white {
@@ -578,7 +604,7 @@ body {
 }
 
 .login-out {
-
+  display: ruby;
   margin: 0px 10px 0px 20px;
 }
 
@@ -622,6 +648,26 @@ body {
   border: 1px solid rgb(198, 198, 199);
   border-bottom-right-radius: 10px;
   border-top-right-radius: 10px;
+}
+
+#title-VNPAY {
+  background-color: #e0f7fa;
+  color: #00796b;
+
+}
+
+.free-city {
+  padding: 10px;
+  color: green;
+}
+
+.title-pay {
+  display: flex;
+}
+
+#title-COD {
+  background-color: #ffebee;
+  color: #d32f2f;
 }
 
 .discount {
@@ -680,20 +726,33 @@ body {
 }
 
 #gioi_thieu {
-  width: 70%;
-  margin: 15px 15% 15px 15%;
-  line-height: 35px;
+  width: 74%;
+  margin: 15px 13% 15px 13%;
+  line-height: 40px;
 }
 
 .thanh_tien {
-  margin-top: 15px;
+  font-size: 18px;
   margin-left: 70%;
   color: red;
 }
+
 .ship {
   margin-top: 15px;
   margin-left: 70%;
-  
+
+}
+
+.free-shipping {
+  display: flex;
+  color: green;
+  margin-left: 70%;
+}
+
+.free-shipping-order {
+  padding-top: 5px;
+  display: flex;
+  color: green;
 }
 
 .d-flex.flex-column.mx-auto {
@@ -817,7 +876,7 @@ body {
 }
 
 .parameter__list {
-  margin-top: -890px;
+  margin-top: -830px;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 20px;
@@ -833,7 +892,7 @@ body {
 .parameter__list .lileft {
   padding-left: 10px;
   width: 140px;
-  
+
 }
 
 .ct-ten-sp {
@@ -860,19 +919,20 @@ body {
 }
 
 .img-order {
-  border-radius: 10px;
-  height: 150px;
-  width: 120px;
+  border-radius: 7px;
+  height: 100px;
+  width: 80px;
 }
 
 .none-comment {
   color: red;
 }
 
-.status-order{
+.status-order {
   float: right;
-  margin-right: 20%;
+  margin-right: 23%;
 }
+
 /* Enhanced OrderStatusBar.css */
 
 .order-status-bar {
@@ -883,6 +943,7 @@ body {
   border-radius: 25px;
   position: relative;
   z-index: 1;
+  margin-bottom: 10px;
 }
 
 .status-stage {
@@ -891,8 +952,17 @@ body {
   text-align: center;
   transition: all 0.4s ease;
   cursor: pointer;
+
 }
 
+.quantity-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#root {
+  background: white;
+}
 
 .status-stage:before {
   content: '';
@@ -926,7 +996,7 @@ body {
 }
 
 .status-huy {
-  font-size: 18px;
+  font-size: 16px;
   color: red;
   font-weight: bold;
 }
@@ -1547,7 +1617,7 @@ body {
 .img_news {
 
   height: 120px;
-  width: 85px;
+  width: 37%;
   border-radius: 2px;
   margin-right: 5px;
   padding-bottom: 5px;
@@ -1561,7 +1631,7 @@ body {
 .news_title {
 
   font-size: 15px;
-
+  font-weight: bold;
 }
 
 
@@ -1595,13 +1665,11 @@ body {
 .header-fixed {
   position: fixed;
   top: 0;
-  width: 100%;
+  margin-left: -4%;
+  width: 108%;
   z-index: 1000;
-  /* Đảm bảo header luôn ở trên cùng */
-  background-color: white;
-  /* Đặt màu nền của header */
+  background-color: rgba(224, 224, 224, 0.814);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Thêm bóng để tạo hiệu ứng chiều sâu */
 }
 
 .header-placeholder {
@@ -1663,6 +1731,17 @@ body {
   margin-left: 70%;
 }
 
+.invoice-id-time {
+  display: flex;
+}
+
+.order-time {
+  margin-left: 55%;
+  font-size: 14px;
+  color: rgb(79, 79, 79);
+  padding-top: 4px;
+}
+
 #modal-confi-product {
   min-width: 80%;
   margin-right: 10%;
@@ -1682,7 +1761,7 @@ body {
   color: black;
   font-size: 15px;
   font-style: normal;
-  
+
   font-weight: bold;
   line-height: 21px;
 }
@@ -1715,6 +1794,7 @@ body {
 }
 
 .detail-product-cart {
+  min-width: max-content;
   position: relative;
   display: flex;
   align-items: center;
@@ -1729,28 +1809,26 @@ body {
   border-radius: 4px;
   position: absolute;
   margin-top: -10%;
-  margin-left: 18%;
+  margin-left: 19%;
   transform: translate(50%, -50%);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .btn.active {
-  background-color: #ffffff; /* Màu nền khi active */
-  color: #007bff; /* Màu chữ khi active */
+  background-color: #ffffff;
+  /* Màu nền khi active */
+  color: #007bff;
+  /* Màu chữ khi active */
 }
 
-.status-huy{
-  float: right;
-}
 
-.modal-body{
-  margin-left: 10%;
-  width: 80%;
+.modal-body {
+  width: 100%;
 }
 
 
 .slick-prev {
-  background-color: rgb(126, 124, 121); 
+  background-color: rgb(126, 124, 121);
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -1761,7 +1839,7 @@ body {
 
 
 .slick-next {
-  background-color: rgb(119, 118, 116); 
+  background-color: rgb(119, 118, 116);
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -1773,10 +1851,123 @@ body {
 
 .slick-prev:before,
 .slick-next:before {
-  color: white; 
+  color: white;
 }
 
-#ghi-chu{
+#ghi-chu {
   width: 600px;
   height: 50px;
+}
+
+
+.slick-prev,
+.slick-next {
+    font-size: 0 !important;
+    line-height: 0 !important;
+
+    position: absolute !important;
+    top: 50% !important;
+
+    display: block !important;
+
+    min-width: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    -webkit-transform: translate(0, -50%) !important;
+    -ms-transform: translate(0, -50%) !important;
+    transform: translate(0, -50%) !important;
+    height: 40px !important;
+    width: 40px !important;
+    cursor: pointer !important;
+
+    color: #fff !important;
+    border: none !important;
+    outline: none !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+
+.slick-prev:before, .slick-next:before {
+  font-family: 'slick';
+  font-size: 40px !important;
+  line-height: 1.15 !important;
+  opacity: .75;
+  color: white ;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+
+
+
+.new-layout1{
+  margin-right: 6%;
+}
+.news-layout {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px
+}
+
+#news-link {
+  text-decoration: none;
+  max-width: 500px;
+  display: inline-block;
+  margin-top: 1%;
+  margin-bottom: 2%;
+  border-bottom: 1px solid #ebebeb;
+  color: black;
+}
+
+.img_news_layout {
+  height: 200px;
+  width: 500px;
+  border-radius: 2px;
+  margin-right: 5px;
+  padding-bottom: 5px;
+}
+
+#span-new h2,
+#span-new h3,
+#span-new h1 {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.svg-inline--fa.fa-floppy-disk {
+  margin-bottom: 1px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+}
+
+
+
+.pagination li a {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pagination li a:hover {
+  background-color: #ddd;
+}
+
+.pagination li.active a {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+}
+
+.product-color-capacity{
+  padding-left: 10px;
 }

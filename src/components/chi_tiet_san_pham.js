@@ -1,14 +1,15 @@
 import Header from "./header";
 import Footer from "./footer";
-import { NavLink,useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { debounce } from 'lodash';
 import numeral from 'numeral';
 import 'chart.js/auto';
 import CommentSection from "./comment_section";
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { faStar, faGift } from "@fortawesome/free-solid-svg-icons";
+import { faStar, faGift, faShippingFast } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Product from "../components/product";
 import StarRating from './star_rating';
@@ -24,7 +25,7 @@ function CTSanPham(props) {
     const [selectedCapacity, setselectedCapacity] = useState(null);
     const [selectedCapacityId, setselectedCapacityID] = useState(null);
     const [selectedColor, setselectedColor] = useState(null);
-    
+
     const [binhLuan, setBinhLuan] = useState([]);
     const [soSao, setSoSao] = useState([]);
     const [sumStar, setSumStar] = useState([]);
@@ -34,35 +35,35 @@ function CTSanPham(props) {
     const [colorGroups, setColorGroups] = useState([]);
     const [dateEnd, setDateEnd] = useState();
     const [relatedProducts, setRelatedProducts] = useState([]);
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
-    useEffect(() => {
-        const groupedImages = groupImagesByColor(props.data.img_product);
-        setColorGroups(groupedImages);
-    }, [props.data.img_product]);
 
     const colors = Object.keys(colorGroups);
     const images = colorGroups[colors[selectedColorIndex]] || [];
 
     useEffect(() => {
-        const fetchRelatedProducts = async () => {
+        const groupedImages = groupImagesByColor(props.data.img_product);
+        setColorGroups(groupedImages);
+
+        const fetchRelatedProducts = debounce(async () => {
             try {
                 const response = await fetch(`http://127.0.0.1:8000/api/brand/${props.data.brand_id}`);
                 const data = await response.json();
-
                 setRelatedProducts(data.data.product);
-
-
             } catch (error) {
                 console.error("Error fetching related products:", error);
             }
-        };
+        }, 300);
 
         fetchRelatedProducts();
-    }, [props.data.brand_id]);
+
+
+        return () => {
+            fetchRelatedProducts.cancel();
+        };
+    }, [props.data.brand_id, props.data.img_product]);
 
 
     const handleColorClick = (index) => {
@@ -87,15 +88,12 @@ function CTSanPham(props) {
         return groups;
     };
 
-    useEffect(() => {
-        setSoSao(props.data.rate);
-    }, [props.data.rate]);
 
     useEffect(() => {
 
         if (props.data.product_detail.length > 0) {
 
-            const defaultDetail = props.data.product_detail[0]; 
+            const defaultDetail = props.data.product_detail[0];
             const defaultDungLuong = defaultDetail.capacity.name;
             const defaultDungLuongId = defaultDetail.capacity.id;
             const defaultMauSac = defaultDetail.color.name;
@@ -113,7 +111,7 @@ function CTSanPham(props) {
                 defaultPrice = defaultDetail.discount_detail[0].price;
                 defaultDateEnd = defaultDetail.discount_detail[0].discount.date_end;
             }
-           
+
 
             setDateEnd(defaultDateEnd);
             setselectedCapacity(defaultDungLuong);
@@ -139,10 +137,10 @@ function CTSanPham(props) {
 
     }, [props.data.product_detail]);
 
-   
-    
 
-   
+
+
+
     const DoiThanhTien = (soTien) => {
 
         const so = parseFloat(soTien);
@@ -150,16 +148,16 @@ function CTSanPham(props) {
     }
 
     useEffect(() => {
-        setBinhLuan(props.data.comment);
-        setSoSao(props.data.rate.filter(rate => rate.capacity_id === selectedCapacityId));
-    }, [props.data.comment,props.data.rate]);
+        setBinhLuan(props.data?.comment);
+        setSoSao(props.data?.rate.filter(rate => rate.capacity_id === selectedCapacityId));
+    }, [props.data.comment]);
 
 
     const handleMauSacClick = (mauSac) => {
         setselectedColor(mauSac);
 
         const chiTietSanPhamSelected = props.data.product_detail.find(item => item.capacity.name === selectedCapacity && item.color.name === mauSac);
-        
+
         if (chiTietSanPhamSelected) {
             setTonKho(chiTietSanPhamSelected.quantity);
             setCount(1);
@@ -193,18 +191,18 @@ function CTSanPham(props) {
     }, [props.data, selectedCapacityId]);
 
     const thongKeSoSao = () => {
-        const thongKe = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }; 
-    
+        const thongKe = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
         if (filteredRates && selectedCapacityId) {
             filteredRates.forEach((danhGiaItem) => {
-                const star = Math.floor(danhGiaItem.star); 
-                if (star >= 1 && star <= 5 && danhGiaItem.capacity_id === selectedCapacityId) { 
+                const star = Math.floor(danhGiaItem.star);
+                if (star >= 1 && star <= 5 && danhGiaItem.capacity_id === selectedCapacityId) {
                     thongKe[star]++;
                 }
             });
         }
-    
-        return thongKe; 
+
+        return thongKe;
     };
 
 
@@ -224,7 +222,7 @@ function CTSanPham(props) {
             alert('Sản phẩm này hiện đã hết hàng!');
             return;
         }
-        
+
         const addCart = {
             quantity: Count,
             product_id: chiTietSanPhamSelected.product_id,
@@ -232,18 +230,18 @@ function CTSanPham(props) {
             capacity_id: chiTietSanPhamSelected.capacity.id,
             color_id: chiTietSanPhamSelected.color.id,
         };
-        
+
 
         axios.post('http://127.0.0.1:8000/api/add-cart', {
             productData: addCart,
         })
-        .then(response => {
-            alert(response.data.message);
-        })
-        .catch(error => {
-            alert(error.response.data.message);
-        });
-        
+            .then(response => {
+                alert(response.data.message);
+            })
+            .catch(error => {
+                alert(error.response.data.message);
+            });
+
     }
 
 
@@ -252,7 +250,7 @@ function CTSanPham(props) {
         const thongKe = thongKeSoSao();
         const soLuongDanhGia = Object.values(thongKe).reduce((acc, cur) => acc + cur, 0);
         const averageRating = soLuongDanhGia > 0 ? (sumStar / soLuongDanhGia).toFixed(1) : 0;
-        
+
         return (
             <>
                 <h3 className="danh-gia-chi-tiet">Đánh giá {props.data.name} - {selectedCapacity}</h3>
@@ -281,7 +279,7 @@ function CTSanPham(props) {
     };
 
     const chonMuaHandler = () => {
-       
+
         const chiTietSanPhamSelected = props.data.product_detail.find(item =>
             item.capacity.name === selectedCapacity && item.color.name === selectedColor);
 
@@ -296,7 +294,7 @@ function CTSanPham(props) {
             alert('Sản phẩm này hiện đã hết hàng!');
             return;
         }
-        
+
         const addCart = {
             quantity: Count,
             product_id: chiTietSanPhamSelected.product_id,
@@ -304,16 +302,16 @@ function CTSanPham(props) {
             capacity_id: chiTietSanPhamSelected.capacity.id,
             color_id: chiTietSanPhamSelected.color.id,
         };
-        
+
         axios.post('http://127.0.0.1:8000/api/add-cart', {
             productData: addCart,
         })
-        .then(response => {
-            navigate('/thanh-toan')
-        })
-        .catch(error => {
-            alert(error.response.data.message);
-        });
+            .then(response => {
+                navigate('/thanh-toan')
+            })
+            .catch(error => {
+                alert(error.response.data.message);
+            });
     };
 
 
@@ -321,13 +319,19 @@ function CTSanPham(props) {
 
 
     const HandelCong = () => {
-        if (Count < tonKho && Count < 3) {
+        if (Count < tonKho) {
             setCount(Count + 1);
+            return;
+        }
+        if (Count >= tonKho) {
+            alert('Sản phẩm đã đạt số lượng tối đa');
+            return;
         }
     };
     const HandelTru = () => {
         if (Count > 1) {
             setCount(Count - 1);
+            return;
         }
     };
 
@@ -344,7 +348,7 @@ function CTSanPham(props) {
 
     const tongSoSao1 = (selectedCapacityId) => {
         let sum = 0;
-    
+
         if (filteredRates && selectedCapacityId) {
             filteredRates.forEach((item) => {
                 if (item.capacity_id === selectedCapacityId) {
@@ -352,14 +356,14 @@ function CTSanPham(props) {
                 }
             });
         }
-    
+
         setSumStar(sum);
     };
     const handleDungLuongClick = (dungLuong, dungLuongId) => {
         setselectedCapacity(dungLuong);
         setselectedCapacityID(dungLuongId)
 
-        
+
         const mauSacCoSan = props.data.product_detail
             .filter(item => item.capacity.name === dungLuong)
             .map(item => item.color.name);
@@ -371,10 +375,10 @@ function CTSanPham(props) {
             setselectedColor(null);
         }
 
-        
+
         const chiTietSanPhamSelected = props.data.product_detail
             .find(item => item.capacity.name === dungLuong && item.color.name === mauSacCoSan[0]);
-           
+
         if (chiTietSanPhamSelected) {
             setTonKho(chiTietSanPhamSelected.quantity);
             setCount(1);
@@ -425,7 +429,7 @@ function CTSanPham(props) {
 
     const filteredComments = binhLuan.filter(comment => comment.capacity_id === selectedCapacityId);
     const filteredRates = raTe.filter(rate => rate.capacity_id === selectedCapacityId);
-    
+
     return (
 
         <>
@@ -447,6 +451,7 @@ function CTSanPham(props) {
                             ))}
                         </Slider>
                     </div>
+
                     <div id="item-name-color">
                         {colors.map((colorId, index) => (
 
@@ -493,12 +498,15 @@ function CTSanPham(props) {
 
 
                     <div className="discount-product">
+
                         {currentDiscountValid && currentPercent > 0 ? (
                             <>
                                 <div className="name-discount">
                                     <FontAwesomeIcon style={{ color: 'red' }} icon={faGift} /> Khuyến mãi
                                     <p id="remaining">Kết thúc: {calculateRemainingTime(dateEnd)}</p>
                                 </div>
+                                <strong className='free-city'><FontAwesomeIcon icon={faShippingFast} className="icon" />
+                                    <span className="free-text">FREE</span>: TP.Hồ Chí Minh</strong>
                                 <div className='price-percent'>
                                     <span className="price-have-discount">{DoiThanhTien(giaBan)}₫</span> -{currentPercent}%
                                 </div>
@@ -506,7 +514,10 @@ function CTSanPham(props) {
 
                             </>
                         ) : (
-                            <div className="price-detail">{DoiThanhTien(giaBan)}₫</div>
+                            <>
+                                <strong className='free-city'><FontAwesomeIcon icon={faShippingFast} className="icon" />
+                                    <span className="free-text">FREE</span>: TP.Hồ Chí Minh</strong>
+                                <div className="price-detail">{DoiThanhTien(giaBan)}₫</div></>
                         )}
 
 

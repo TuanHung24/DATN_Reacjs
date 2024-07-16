@@ -2,6 +2,8 @@ import { useState } from "react";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import axios from "axios";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
 import { NavLink, useNavigate } from "react-router-dom";
 import withAuth from './withAuth';
 function ThongTinCaNhan() {
@@ -92,7 +94,7 @@ function ThongTinCaNhan() {
                         <input type="text" className="form-control" id="dia-chi" value={diaChi} onChange={(e) => setDiaChi(e.target.value)} />
                     </div>
                 </div><br />
-                <NavLink to='/reset-password'>Đổi mật khẩu</NavLink>{'   '}<button className="btn btn-primary" onClick={upDateInfo}>Cập nhật thông tin</button>
+                <button className="btn btn-primary" onClick={upDateInfo}><FontAwesomeIcon icon={faSave} />Lưu thông tin</button>
             </div>
             <Footer />
         </>

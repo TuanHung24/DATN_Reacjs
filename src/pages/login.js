@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
@@ -10,29 +10,53 @@ import { faGoogle, faFacebook } from '@fortawesome/free-brands-svg-icons';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberPassword, setRememberPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [token, setToken] = useState('');
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('email');
+    if (storedEmail) {
+      setEmail(storedEmail);
+      setRememberPassword(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const token = query.get('token');
+    //const id = query.get('id');
+    if (token) {
+        localStorage.setItem('token', token);
+        //localStorage.setItem('id', id);
+        setToken(token);
+        navigate('/');
+    }
+}, [location.search, navigate]);
 
   const handleLogin = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.post('http://127.0.0.1:8000/api/login', {
         email: email,
         password: password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
       });
 
+      const { data } = response;
+
       if (response.status === 200) {
-        const Dt = await response.data;
-        localStorage.setItem('token', Dt.access_token);
-        alert("Đăng nhập thành công");
+        localStorage.setItem('token', data.access_token);
+
+        if (rememberPassword) {
+          localStorage.setItem('rememberPassword', 'true');
+          localStorage.setItem('email', email);
+        } else {
+          localStorage.removeItem('rememberPassword');
+          localStorage.removeItem('email');
+        }
+
+        alert('Đăng nhập thành công');
         navigate('/');
       } else {
-        const data = await response.data;
         console.error('Login failed:', data.error);
         toast.error('Đăng nhập thất bại!', {
           position: 'top-right',
@@ -44,8 +68,22 @@ function Login() {
         });
       }
     } catch (error) {
-      alert("Đăng nhập không thành công!");
+      if (error.response && error.response.status === 401) {
+
+        alert(error.response.data.error);
+      } else {
+        console.error('Đăng nhập không thành công:', error);
+        alert('Đăng nhập không thành công!');
+      }
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://127.0.0.1:8000/auth/google';
+  };
+
+  const handleRememberPasswordChange = (e) => {
+    setRememberPassword(e.target.checked);
   };
 
   return (
@@ -91,8 +129,9 @@ function Login() {
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    value=""
-                    id="form1Example3"
+                    id="rememberPassword"
+                    checked={rememberPassword}
+                    onChange={handleRememberPasswordChange}
                   />
                   <label className="form-check-label" htmlFor="form1Example3">
                     Remember password
@@ -110,12 +149,12 @@ function Login() {
               >
                 Đăng nhập
               </button>
-            <br/>
-             
-              <button className="btn btn-lg btn-block btn-danger" id="google">
+              <br />
+
+              <button className="btn btn-lg btn-block btn-danger" id="google" onClick={handleGoogleLogin}>
                 <FontAwesomeIcon icon={faGoogle} /> Đăng nhập bằng Google
               </button>
-               
+
               <button className="btn btn-lg btn-block btn-primary" id="facebook">
                 <FontAwesomeIcon icon={faFacebook} /> Đăng nhập bằng Facebook
               </button>

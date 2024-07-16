@@ -40,7 +40,7 @@ function Product(props) {
       setCurrentPercent(preCent);
       
       updateAvailableColors(firstDetail.capacity?.name || '');
-      updateAverageRating(firstDetail.capacity?.id); // Gọi lại hàm này để cập nhật đánh giá trung bình
+      updateAverageRating(firstDetail.capacity?.id);
     }
   }, [props.member]);
 
@@ -77,7 +77,7 @@ function Product(props) {
       const preCent = detail.discount_detail.length > 0 ? detail.discount_detail[0].percent : '';
       setCurrentPercent(preCent);
       setCurrentPrice(DoiThanhTien(detail.price));
-      setSelectedCapacityId(detail.capacity.id); // Đảm bảo cập nhật ID dung lượng ở đây
+      setSelectedCapacityId(detail.capacity.id);
       updateAverageRating(detail.capacity.id);
     }
   };

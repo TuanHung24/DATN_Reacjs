@@ -1,7 +1,7 @@
 //import logo from './logo.svg';
 // import './App.css';
 // import Main from './components/pages/main';
-// import './bootstrap-5.2.3-dist/css/bootstrap.min.css';
+
 // import './bootstrap-5.2.3-dist/js/bootstrap.bundle.min.js';
 // import Banner from './components/pages/banner';
 // import Products from './components/products';
@@ -20,9 +20,9 @@ import DonHang from "./pages/don_hang";
 import ThongTinCaNhan from "./pages/thong_tin_ca_nhan";
 import QuenMatKhau from "./pages/quen-mat-khau";
 import Login from "./pages/login";
-import News from "./pages/news";
+import New from "./pages/news";
 import ResetPassword from "./pages/reset_password";
-
+import ListNew from "./pages/list_new";
 //import Products from "./components/products";
 function App() {
   return (
@@ -38,7 +38,9 @@ function App() {
     <Route path="/login" element={<Login/>}/>
     <Route path="/product/:slug" element={<ChiTietSanPham/>}/>
     <Route path="/brand/:lspID" element={<ListProductType/>}/>
-    <Route path="/news/:getNew" element={<News/>}/>
+    <Route path="/news/:getNew" element={<New/>}/>
+    <Route path="/new" element={<ListNew/>}/>
+    
     <Route path="/forgot-password" element={<QuenMatKhau/>}/>
     <Route path="/reset-password" element={<ResetPassword/>}/>
     </Routes>

@@ -1,34 +1,41 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCartShopping, faShoppingBag, faUser,faSearch,faSignIn, faUserPlus, faSignOutAlt  } from '@fortawesome/free-solid-svg-icons';
-import { useEffect, useState } from "react";
+import { faCartShopping, faShoppingBag, faUser,faSearch,faSignIn, faUserPlus, faSignOutAlt,faHome  } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import Products from "./products";
-import Product from './product';
 
-function Header() {
+
+function Header(props) {
   const [name, setName] = useState(localStorage.getItem('name') || null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const [listProduct, setListProduct] = useState([]); // Khởi tạo với mảng rỗng
-  const [sumCart, setSumCart] = useState(0);
-  const [sumOrder, setSumOrder] = useState(0);
+ 
+  const [openDropdown, setOpenDropdown] = useState(false); // State để kiểm soát trạng thái dropdown
+  const dropdownRef = useRef(null);
+ 
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleDropdownToggle = () => {
+    setOpenDropdown(!openDropdown);
+  };
+
+  
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setOpenDropdown(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('id');
-    
-
-    // axios.get(`http://127.0.0.1:8000/api/get-cart/${userId}`)
-    //         .then(response => {
-    //             const cartItems = response.data.data;
-    //             setSumCart(cartItems.length);
-    //         })
-    //         .catch(error => {
-    //             alert(error.response.data.message);
-    //         });
-
     if (token) {
       setIsLoggedIn(true);
       axiosUserInfo(token);
@@ -101,23 +108,23 @@ function Header() {
   return (
     <>
       <header className="p-3 text-white">
-        <section className="header-fixed w-100">
+        <section className="header-fixed">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <div className="container-fluid1">
               <button className="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <i className="fas fa-bars"></i>
               </button>
 
-              <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul className="navbar-nav me-auto mb-2">
+              <div className="navbar-collapse" id="navbarSupportedContent">
+                <ul className="navbar-nav me-auto">
                   <li>
-                    <NavLink to="/" className="nav-link active white">Trang chủ</NavLink>
+                    <NavLink to="/" className="nav-link active white"><FontAwesomeIcon icon={faHome} />Trang chủ</NavLink>
                   </li>
                   <li>
                     <NavLink to="/gioi-thieu" className="nav-link">Giới thiệu</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/tu-van" className="nav-link">Tư vấn</NavLink>
+                    <NavLink to="/new" className="nav-link">Tin tức</NavLink>
                   </li>
                 </ul>
               </div>
@@ -150,8 +157,47 @@ function Header() {
               <div className="login-out">
                 {isLoggedIn ? (
                   <>
-                    <FontAwesomeIcon icon={faUser} size="1x" className="ml-2" />&nbsp;
-                    <span>Xin chào, <NavLink to="/info" className="info-name">{name}</NavLink></span>
+                    
+                    
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      size="1x"
+                      className="ml-2"
+                    />&nbsp;
+                    <span>
+                      Xin chào,
+                      <div className="dropdown" ref={dropdownRef}>
+                        <button
+                          className="btn btn-link dropdown-toggle"
+                          id="info-name"
+                          type="button"
+                          onClick={handleDropdownToggle}
+                        >
+                        {name}
+                        </button>
+                        <ul
+                          className={`dropdown-menu ${
+                            openDropdown ? "show" : ""
+                          }`}
+                        >
+                          <li>
+                            <NavLink to="/info" className="dropdown-item">
+                              Xem thông tin
+                            </NavLink>
+                          </li>
+                          <li>
+                            <NavLink
+                              to="/reset-password"
+                              className="dropdown-item"
+                            >
+                              Đổi mật khẩu
+                            </NavLink>
+                          </li>
+                        </ul>
+                      </div>
+                    </span>
+
+
                     <button className="logout" onClick={logout}> <FontAwesomeIcon icon={faSignOutAlt} /> Đăng xuất</button>
                   </>
                 ) : (
@@ -166,14 +212,14 @@ function Header() {
                   <div className="d-flex align-items-center">
                     <NavLink className="text-reset me-3" to="/cart">
                       <FontAwesomeIcon icon={faCartShopping} size="2x" className="mr-4"/>
-                      {sumCart > 0 && (
-                        <span className="badge rounded-pill badge-notification bg-danger">{sumCart}</span>
+                      {props.cart > 0 && (
+                        <span className="badge rounded-pill badge-notification bg-danger">{props.cart}</span>
                       )}
                     </NavLink>
                     <NavLink className="text-reset me-3" to='/order'>
                       <FontAwesomeIcon icon={faShoppingBag} size="2x" className="ml-2" />
-                      {sumOrder > 0 && (
-                        <span className="badge rounded-pill badge-notification bg-danger">{sumOrder}</span>
+                      {props.order > 0 && (
+                        <span className="badge rounded-pill badge-notification bg-danger">{props.order}</span>
                       )}
                     </NavLink>
                   </div>
@@ -183,8 +229,8 @@ function Header() {
                   <div className="d-flex align-items-center">
                     <NavLink className="text-reset me-3" to="/cart">
                       <FontAwesomeIcon icon={faCartShopping} size="2x" className="mr-4" />
-                      {sumCart > 0 && (
-                        <span className="badge rounded-pill badge-notification bg-danger">{sumCart}</span>
+                      {props.cart > 0 && (
+                        <span className="badge rounded-pill badge-notification bg-danger">{props.cart}</span>
                       )}
                     </NavLink>
                   </div>

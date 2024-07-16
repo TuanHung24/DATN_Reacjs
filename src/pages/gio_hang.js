@@ -13,19 +13,48 @@ function GioHang() {
     const token = localStorage.getItem('token');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
+    const [sumCart, setSumCart] = useState(0);
+    const [sumOrder, setSumOrder] = useState(0);
+    const [maxQuantities, setMaxQuantities] = useState({});
     useEffect(() => {
-        const userId = localStorage.getItem('id');
-        axios.get(`http://127.0.0.1:8000/api/get-cart/${userId}`)
-            .then(response => {
-                const cartItems = response.data.data;
-                setCartItems(cartItems);
+        const fetchOrderStatus = async () => {
+            setLoading(true);
+            try {
+                const userId = localStorage.getItem('id');
+                const token = localStorage.getItem('token');
+                
+                if (userId) {
+                    const [cartResponse, statusResponse] = await Promise.all([
+                        axios.get(`http://127.0.0.1:8000/api/get-cart/${userId}`),
+                        axios.post(`http://127.0.0.1:8000/api/status-invoice/${userId}`, {}, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        })
+                    ]);
 
-                setLoading(false)
-            })
-            .catch(error => {
-                alert(error.response.data.message);
-            });
+
+                    const cartItems = cartResponse.data.data;
+                    const statusOrders = statusResponse.data.data;
+
+
+                    setSumCart(cartItems.length);
+                    setCartItems(cartItems)
+                    setSumOrder(statusOrders.length);
+                }
+                else{
+                    return;
+                }
+
+            } catch (error) {
+                console.error("Có lỗi khi lấy thông tin đơn hàng:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+
+        fetchOrderStatus();
     }, []);
 
     if (!numeral.locales['vi-custom']) {
@@ -47,38 +76,68 @@ function GioHang() {
     };
 
     const thanhToanHandler = () => {
-        if (!token) {
-            alert('Vui lòng đăng nhập để thanh toán!')
-            return;
-        }
-        const cartData = cartItems.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            capacity_id: item.capacity_id,
-            color_id: item.color_id,
-            customer_id: localStorage.getItem('id'),
-        }));
+        try {
 
-        axios.post('http://127.0.0.1:8000/api/update-cart', { cartData })
-            .then(response => {
-                navigate('/thanh-toan')
-            })
-            .catch(error => {
-                alert(error.response.data.message);
-            });
+
+            if (!token) {
+                alert('Vui lòng đăng nhập để thanh toán!')
+                return;
+            }
+            const cartData = cartItems.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                capacity_id: item.capacity_id,
+                color_id: item.color_id,
+                customer_id: localStorage.getItem('id'),
+            }));
+
+            axios.post('http://127.0.0.1:8000/api/update-cart', { cartData })
+                .then(response => {
+                    navigate('/thanh-toan')
+                })
+                .catch(error => {
+                    alert(error.response.data.message);
+                });
+        } catch (error) {
+            console.error("Có lỗi khi khi thanh toán đơn hàng:", error);
+        }
 
     };
 
-    const timSoLuongTon = async (index) => {
-        const updatedCartItems = [...cartItems];
-        const item = updatedCartItems[index];
+    const timSoLuongTon = async (id, msId, dlId, index) => {
 
-        if (item.quantity < 3) {
-            item.quantity++;
-            item.total = item.price * item.quantity;
-            setCartItems(updatedCartItems);
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/update-quantity', {
+                product_id: id,
+                capacity_id: dlId,
+                color_id: msId
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
+            if (response.status === 200) {
+                const maxQuantity = response.data.quantity;
+                setMaxQuantities(prevState => ({
+                    ...prevState,
+                    [index]: maxQuantity
+                }));
+                if (maxQuantity > cartItems[index].quantity) {
+                    const updatedCartItems = [...cartItems];
+                    updatedCartItems[index].quantity++;
+                    updatedCartItems[index].total = updatedCartItems[index].price * updatedCartItems[index].quantity;
+                    setCartItems(updatedCartItems);
+                }
+                if (maxQuantity <= 0) {
+                    alert('Sản phẩm hiện không có sẵn trong kho!');
+                }
+            }
+        } catch (error) {
+            console.error("Có lỗi xảy ra:", error.data.message);
+            
         }
+
 
     };
 
@@ -91,9 +150,9 @@ function GioHang() {
             setCartItems(updatedCartItems);
 
         }
-        
+
     };
-    
+
     const xoaHandler = async (id) => {
         const token = localStorage.getItem('token');
         try {
@@ -102,9 +161,9 @@ function GioHang() {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                
+
             });
-            
+
             if (response.status === 200) {
                 alert(response.data.message)
                 window.location.reload();
@@ -115,7 +174,7 @@ function GioHang() {
             console.error('Lỗi giỏ hàng:', error);
         }
 
-        
+
     };
 
     const gioHangUI = () => {
@@ -123,6 +182,7 @@ function GioHang() {
             return (
                 <div className="giohang">
                     <h7><NavLink to='/' className='menu'>Trang chủ</NavLink>{' | '}<NavLink to='/cart' className='menu'>giỏ hàng</NavLink></h7>
+                    <NavLink className="add-cart-now" to='/'>Thêm sản phẩm khác</NavLink>
                     <table className="table">
                         <thead>
                             <tr>
@@ -142,7 +202,7 @@ function GioHang() {
                                             <td className="detail-product-cart">
                                                 <NavLink to={`/product/${item.product_name}`} className='detail-product-cart'>
                                                     <img src={`http://127.0.0.1:8000/${item.img_product.img_url}`} alt="img-cart" className="img-cart" />
-                                                    <span>
+                                                    <span className="product-color-capacity">
                                                         {'   '}{item.product_name}{' - '}{item.color}{' - '}{item.capacity}
                                                     </span>
                                                     {percent > 0 && (
@@ -152,11 +212,11 @@ function GioHang() {
                                             </td>
                                             <td>{DoiThanhTien(item.price)}</td>
                                             <td>
-                                                <button className="quantity-btn" onClick={() => giamSoLuongHandler(index)}>
+                                                <button className="quantity-btn" onClick={() => giamSoLuongHandler(index)} disabled={item.quantity <= 1}>
                                                     <FontAwesomeIcon icon={faMinus} />
                                                 </button>
                                                 <span className="quantity">{item.quantity}</span>
-                                                <button className="quantity-btn" onClick={() => timSoLuongTon(index)} disabled={item.quantity >= 3}>
+                                                <button className="quantity-btn" onClick={() => timSoLuongTon(item.product_id, item.color_id, item.capacity_id, index)} disabled={item.quantity >= (maxQuantities[index])}>
                                                     <FontAwesomeIcon icon={faPlus} />
                                                 </button>
                                             </td>
@@ -171,7 +231,7 @@ function GioHang() {
                         </tbody>
 
                     </table>
-                    <button onClick={thanhToanHandler} className="btn btn-primary" id="thanh-toan">Thanh toán</button>
+                    <button onClick={thanhToanHandler} className="btn btn-warning" id="thanh-toan">Đặt hàng</button>
                 </div>
             )
         }
@@ -185,7 +245,7 @@ function GioHang() {
     }
     return (
         <>
-            <Header />
+            <Header cart={sumCart} order={sumOrder} />
             {loading ? (
                 <Loading />
 

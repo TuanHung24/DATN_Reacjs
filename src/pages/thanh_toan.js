@@ -8,7 +8,8 @@ import withAuth from './withAuth';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Loading from '../components/loading';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShippingFast, faCreditCard, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 
 function ThanhToan() {
     const [cartItems, setCartItems] = useState([]);
@@ -16,7 +17,7 @@ function ThanhToan() {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('Thanh toán khi nhận hàng'); // Default payment method
-    const [ship, setShip] = useState(25000);
+    const [ship, setShip] = useState('');
 
     const Name = useRef();
     const Phone = useRef();
@@ -84,6 +85,17 @@ function ThanhToan() {
                     const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${selectedProvince}.htm`);
                     if (Array.isArray(response.data.data)) {
                         setDistricts(response.data.data);
+
+                        if (selectedProvince === '79') {
+                            setShip(0);
+                        } else {
+                            setShip(25000);
+                        }
+                        let total = 0;
+                        cartItems.forEach(item => {
+                            total += item.price * item.quantity;
+                        });
+                        setTongTien(total + ship);
                     } else {
                         console.error('Lỗi khi lấy danh sách quận huyện: Dữ liệu không phải mảng');
                     }
@@ -95,6 +107,8 @@ function ThanhToan() {
 
         fetchDistricts();
     }, [selectedProvince]);
+
+
 
     useEffect(() => {
         const fetchCommunes = async () => {
@@ -117,32 +131,41 @@ function ThanhToan() {
 
 
     useEffect(() => {
-        const addressParts = address.split(', ').map(part => part.trim());
-        const xa = addressParts[0];
-        const huyen = addressParts[1];
-        const tinh = addressParts[2];
+        if (address) {
+            const addressParts = address.split(', ').map(part => part.trim());
 
-        const province = provinces.find(prov => prov.full_name.trim().toLowerCase() === tinh.toLowerCase());
-        if (province) {
-            setSelectedProvince(province.id);
-        }
+            if (addressParts.length === 3) {
+                const xa = addressParts[0];
+                const huyen = addressParts[1];
+                const tinh = addressParts[2];
 
-        const district = districts.find(dist => dist.full_name.trim().toLowerCase() === huyen.toLowerCase());
-        if (district) {
-            setSelectedDistrict(district.id);
-        }
+                const province = provinces?.find(prov => prov?.full_name?.trim().toLowerCase() === tinh.toLowerCase());
+                if (province) {
+                    setSelectedProvince(province.id);
+                }
 
-        const commune = communes.find(comm => comm.full_name.trim().toLowerCase() === xa.toLowerCase());
-        if (commune) {
-            setSelectedCommune(commune.id);
+                const district = districts?.find(dist => dist?.full_name?.trim().toLowerCase() === huyen.toLowerCase());
+                if (district) {
+                    setSelectedDistrict(district.id);
+                }
+
+                const commune = communes?.find(comm => comm?.full_name?.trim().toLowerCase() === xa.toLowerCase());
+                if (commune) {
+                    setSelectedCommune(commune.id);
+                }
+            } else {
+                console.error('Invalid address format:', address);
+            }
         }
     }, [address, provinces, districts, communes]);
 
 
     const handleProvinceChange = (e) => {
+
         setSelectedProvince(e.target.value);
         setSelectedDistrict('');
         setSelectedCommune('');
+
     };
 
     const handleAddressChange = (e) => {
@@ -151,6 +174,7 @@ function ThanhToan() {
         const selectedCommuneName = communes.find(commune => commune.id === selectedCommune)?.full_name || '';
 
         setAddress(`${selectedCommuneName}, ${selectedDistrictName}, ${selectedProvinceName}`);
+
     };
     const handleDistrictChange = (e) => {
         setSelectedDistrict(e.target.value);
@@ -175,6 +199,9 @@ function ThanhToan() {
         });
         setTongTien(total + ship);
     }, [cartItems]);
+
+
+
 
     if (!numeral.locales['vi-custom']) {
         numeral.register('locale', 'vi-custom', {
@@ -227,7 +254,7 @@ function ThanhToan() {
             };
             const savedApartmentNumber = localStorage.getItem(`apartmentNumber_${localStorage.getItem('id')}`);
 
-            
+
             if (apartmentNumber.current.value !== savedApartmentNumber) {
                 localStorage.setItem(`apartmentNumber_${localStorage.getItem('id')}`, apartmentNumber.current.value);
             }
@@ -296,6 +323,7 @@ function ThanhToan() {
     }
 
 
+
     const thanhToanUI = () => {
         if (cartItems.length > 0) {
             return (
@@ -328,7 +356,15 @@ function ThanhToan() {
 
                         </tbody>
                     </table>
-                    <h6 className='ship'>Phí vận chuyển: {formatSoTien(ship)}đ</h6>
+                    {ship === 0 ? (
+                        <div className="free-shipping">
+                            <FontAwesomeIcon icon={faShippingFast} className="icon" />
+                            <h6 className='free-ship'>Miễn phí vận chuyển</h6>
+                        </div>
+                    ) : (
+                        <h6 className='ship'>Phí vận chuyển: {formatSoTien(ship)}đ</h6>
+                    )}
+
                     <h6 className='thanh_tien'>Tổng tiền: {formatSoTien(tongTien)}đ</h6>
                 </div>
             );
@@ -345,6 +381,7 @@ function ThanhToan() {
             <div className='thong-tin'>
                 <div className="mb-3">
                     <h5>Thông tin người nhận hàng:</h5>
+
                 </div>
                 <div className="row">
                     <div className="col-md-4">
@@ -359,7 +396,7 @@ function ThanhToan() {
                 <div className="row">
                     <label htmlFor="address" className="form-label">Địa chỉ:</label>
                     <div className="col-md-4">
-                        <select className='form-select' value={selectedProvince} ref={provinces1} onChange={handleProvinceChange} onClick={handleAddressChange}>
+                        <select className='form-select' value={selectedProvince} ref={provinces1} onChange={handleProvinceChange} onClick={handleAddressChange} >
                             <option value="">Chọn tỉnh thành</option>
                             {provinces.map(province => (
                                 <option key={province.id} value={province.id}>{province.full_name}</option>
@@ -405,13 +442,15 @@ function ThanhToan() {
                     <div className="col-md-6">
                         <div className="form-check">
                             <input className="form-check-input" type="radio" name="paymentMethod" id="paymentMethod1" value="Thanh toán khi nhận hàng" defaultChecked onChange={() => setPaymentMethod('Thanh toán khi nhận hàng')} />
-                            <label className="form-check-label" htmlFor="paymentMethod1">
+                            <label className="form-check-label" htmlFor="paymentMethod1" id="title-COD">
+                                <FontAwesomeIcon icon={faMoneyBillWave} className="icon" />
                                 Thanh toán khi nhận hàng
                             </label>
                         </div>
                         <div className="form-check">
                             <input className="form-check-input" type="radio" name="paymentMethod" id="paymentMethod2" value="Thanh toán VNPAY" onChange={() => setPaymentMethod('Thanh toán VNPAY')} />
-                            <label className="form-check-label" htmlFor="paymentMethod2">
+                            <label className="form-check-label" htmlFor="paymentMethod2" id="title-VNPAY">
+                                <FontAwesomeIcon icon={faCreditCard} color='' />
                                 Thanh toán VNPAY
                             </label>
                         </div>
@@ -419,7 +458,7 @@ function ThanhToan() {
                 </div>
                 <div className="row mt-3">
                     <div className="col-md-6">
-                        <button className="btn btn-warning" onClick={testHandler}>Thanh toán</button>
+                        <button className="btn btn-warning" onClick={testHandler}>ĐẶT HÀNG</button>
                     </div>
                 </div>
             </div>

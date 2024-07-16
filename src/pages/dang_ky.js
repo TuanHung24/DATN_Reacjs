@@ -201,9 +201,9 @@ function DangKy() {
                       {errors.address && <small className="text-danger">{errors.address}</small>}
                     </div>
                   </div>
-
+                  <button type="button" className="btn btn-success btn-block btn-lg" onClick={handleRegister}>Đăng ký</button>
                   <div className="d-flex justify-content-center">
-                    <button type="button" className="btn btn-success btn-block btn-lg gradient-custom-4 text-body" onClick={handleRegister}>Đăng ký</button>
+                   
                   </div>
                   <p className="text-center text-muted mt-5 mb-0">Bạn đã có tài khoản? <NavLink to="/login" className="fw-bold text-body"><u>Đăng nhập</u></NavLink></p>
                 </form>

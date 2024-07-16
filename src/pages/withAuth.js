@@ -14,7 +14,7 @@ const withAuth = (WrappedComponent) => {
 
         render() {
             if (!this.checkAuth()) {
-                return <Navigate to="/dang-nhap" />;
+                return <Navigate to="/login" />;
             }
             return <WrappedComponent {...this.props} />;
         }

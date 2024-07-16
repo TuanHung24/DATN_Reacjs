@@ -4,6 +4,8 @@ import withAuth from './withAuth';
 import Header from "../components/header";
 import Footer from "../components/footer";
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave    } from '@fortawesome/free-solid-svg-icons';
 function DoiMatKhau(){
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -74,7 +76,7 @@ function DoiMatKhau(){
                         <input type="password" className="form-control" id="new-password1" value={newPassword1} onChange={(e) => setNewPassword1(e.target.value)} />
                     </div>
                 </div><br />
-                <button className="btn btn-primary" onClick={changePassword}>Thay đổi mật khẩu</button>
+                <button className="btn btn-primary" onClick={changePassword}><FontAwesomeIcon icon={faSave } />Lưu mật khẩu</button>
             </div>
             <Footer/>
         </>
